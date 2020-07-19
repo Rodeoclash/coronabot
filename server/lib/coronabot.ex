@@ -1,0 +1,2 @@
+defmodule Coronabot do
+end

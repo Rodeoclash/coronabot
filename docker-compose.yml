@@ -1,0 +1,25 @@
+version: '3.7'
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+      target: development
+    command: mix start
+    environment:
+      - SLACK_BOT_TOKEN
+    image: rodeoclash/coronabot:latest
+    logging:
+      driver: 'json-file'
+      options:
+        max-size: '200k'
+        max-file: '10'
+    user: "1000"
+    volumes:
+      - ./passwd:/etc/passwd
+      - ./server:/usr/src/app
+      - home:/home/server
+
+volumes:
+  home:

@@ -1,0 +1,65 @@
+name: CI
+
+on: [push]
+
+env:
+  GPR_URL: 'docker.pkg.github.com'
+  GPR_USER: 'andrewrperkins'
+  IMAGE_PATH_LATEST: 'docker.pkg.github.com/andrewrperkins/gotchas_proto/gotchas_server:latest'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Log in to GPR
+        run: docker login ${GPR_URL} -u ${GPR_USER} -p ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pull the image from GPR
+        run: docker pull ${IMAGE_PATH_LATEST}
+
+      - name: Build the Docker image
+        run: docker build --file server/Dockerfile --tag ${IMAGE_PATH_LATEST} --cache-from ${IMAGE_PATH_LATEST} --target=development .
+
+      - name: Publish the image to GPR
+        run: docker push ${IMAGE_PATH_LATEST}
+
+  preview:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - uses: danielr1996/envsubst-action@1.0.0
+        with:
+          input: stagehand.json.template
+          output: stagehand.json
+        env:
+          SHA: ${{ github.sha }}
+          STAGEHAND_ACCESS_TOKEN: ${{ secrets.STAGEHAND_ACCESS_TOKEN }}
+
+      - name: Notify Stagehand of deploy
+        run: "curl --header \"Content-Type: application/json\" --request POST --data '@stagehand.json' https://stagehand.dev/api/preview"
+
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Log in to GPR
+        run: docker login ${GPR_URL} -u ${GPR_USER} -p ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Test
+        run:
+          docker-compose -f docker-compose.ci.yml run server mix test
+
+      - name: Lint
+        run:
+          docker-compose -f docker-compose.ci.yml run server mix format --check-formatted
