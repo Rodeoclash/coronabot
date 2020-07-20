@@ -47,10 +47,10 @@ defmodule Coronabot.State.LatestDataDate do
 
   @impl true
   def handle_info(:work, state) do
-    requeue(state[:reschedule_in])
-
     latest = start_date_from_state(state) |> Source.scan()
     new_state = %{state | latest: latest}
+
+    requeue(state[:reschedule_in])
 
     {:noreply, new_state}
   end

@@ -14,24 +14,24 @@ defmodule Coronabot.SlackBot do
   end
 
   @doc """
-  Fetch the latest known date
+  Can the bot accept messages yet?
   """
-  def message(content) do
-    GenServer.cast(SlackBot, {:message, content})
+  def ready? do
+    GenServer.call(SlackBot, :ready?)
   end
 
   @doc """
   Indicate that the bot is ready for messages
   """
-  def set_ready do
-    GenServer.cast(SlackBot, :set_ready)
+  def ready! do
+    GenServer.cast(SlackBot, :ready!)
   end
 
   @doc """
-  Can the bot accept messages yet?
+  Send a message to Slack
   """
-  def ready? do
-    GenServer.call(SlackBot, :ready?)
+  def message(content) do
+    GenServer.cast(SlackBot, {:message, content})
   end
 
   # Server (callbacks)
@@ -43,23 +43,27 @@ defmodule Coronabot.SlackBot do
 
   @impl true
   def handle_continue(:setup, state) do
-    {:ok, rtm} = Slack.Bot.start_link(Rtm, [], System.get_env("SLACK_BOT_TOKEN"))
-    {:noreply, %{state | rtm: rtm}}
+    if Application.get_env(:coronabot, :connect_slack) === true do
+      {:ok, rtm} = Slack.Bot.start_link(Rtm, [], System.get_env("SLACK_BOT_TOKEN"))
+      {:noreply, %{state | rtm: rtm}}
+    else
+      {:noreply, state}
+    end
+  end
+
+  @impl true
+  def handle_call(:ready?, _from, %{ready: ready} = state) do
+    {:reply, ready, state}
+  end
+
+  @impl true
+  def handle_cast(:ready!, state) do
+    {:noreply, %{state | ready: true}}
   end
 
   @impl true
   def handle_cast({:message, content}, %{rtm: rtm} = state) do
     send(rtm, {:message, content, "#coronabot-test"})
     {:noreply, state}
-  end
-
-  @impl true
-  def handle_cast(:set_ready, state) do
-    {:noreply, %{state | ready: true}}
-  end
-
-  @impl true
-  def handle_call(:ready?, _from, %{ready: ready} = state) do
-    {:reply, ready, state}
   end
 end

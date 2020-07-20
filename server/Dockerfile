@@ -26,9 +26,9 @@ RUN MIX_ENV=test mix do deps.get deps.compile
 COPY ./server/lib lib
 
 # create a release
-#RUN MIX_ENV=prod mix release gotchas
+RUN MIX_ENV=prod mix release coronabot
 
-#CMD mix phx.server
+CMD mix run --no-halt
 
 #
 # Deploy
@@ -49,6 +49,6 @@ RUN apt-get update && \
     --no-install-recommends && \
     rm -rf /var/lib/apt/lists/*
 
-COPY --from=development $APP_HOME/_build/prod/rel/gotchas $APP_HOME
+COPY --from=development $APP_HOME/_build/prod/rel/coronabot $APP_HOME
 
-CMD bin/gotchas start
+CMD bin/coronabot start

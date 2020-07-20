@@ -6,6 +6,14 @@ defmodule Coronabot.CovidData.Source do
   @http_client Application.get_env(:coronabot, :http_client)
 
   @doc """
+  If date omitted, scan from today
+  """
+  def scan() do
+    Date.utc_today()
+    |> scan()
+  end
+
+  @doc """
   Scan until we find a usable date. If the given date exists, start working fowards. If it doesn't, work backwards.
 
   It is intended that this gets "todays" date then figures out what the latest data is.
