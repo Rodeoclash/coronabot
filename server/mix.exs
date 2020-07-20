@@ -13,9 +13,9 @@ defmodule Coronabot.MixProject do
           include_executables_for: [:unix],
           applications: [
             coronabot: :permanent,
-            runtime_tools: :permanent,
+            runtime_tools: :permanent
           ]
-        ],
+        ]
       ]
     ]
   end
