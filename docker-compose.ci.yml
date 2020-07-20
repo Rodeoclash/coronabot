@@ -3,4 +3,3 @@ version: '3.7'
 services:
   server:
     image: ${IMAGE_PATH_LATEST}
-    logging: *logging
