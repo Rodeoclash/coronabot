@@ -2,11 +2,12 @@ defmodule Coronabot.SlackBot.Rtm do
   alias Coronabot.{SlackBot}
   use Slack
 
-  def handle_connect(slack, state) do
+  def handle_connect(_slack, state) do
+    SlackBot.ready!()
     {:ok, state}
   end
 
-  def handle_event(message = %{type: "message"}, slack, state) do
+  def handle_event(_message = %{type: "message"}, _slack, state) do
     {:ok, state}
   end
 

@@ -11,7 +11,8 @@ defmodule Coronabot.CovidData do
     :yesterday_today_comparaison
   ]
 
-  defstruct today: %Record{
+  defstruct date: nil,
+            today: %Record{
               province_state: nil,
               country_region: nil,
               last_update: nil,
@@ -51,8 +52,32 @@ defmodule Coronabot.CovidData do
       |> Records.find(term)
 
     %CovidData{
+      date: date,
       today: today,
       yesterday_today_comparaison: Comparaison.between(yesterday, today)
     }
+  end
+
+  def message(data) do
+    ~s[:newspaper: *The Daily Covid: #{Date.to_string(data.date)}*
+#{entry("Confirmed", data, :confirmed)}
+#{entry("Deaths", data, :deaths)}
+#{entry("Recovered", data, :recovered)}
+#{entry("Active", data, :active)}]
+  end
+
+  def entry(label, data, field) do
+    value = Map.get(data.today, field)
+    change = Map.get(data.yesterday_today_comparaison, field)
+
+    "#{label}: #{value} (_#{format_change(change)}_)"
+  end
+
+  def format_change(n) when n > 0 do
+    "+#{n}"
+  end
+
+  def format_change(n) when n <= 0 do
+    "#{n}"
   end
 end

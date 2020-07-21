@@ -25,16 +25,10 @@ defmodule Coronabot.State.PublishResults do
   def handle_info(:work, state) do
     state =
       if can_publish?(state) == true do
-        latest_data_date = LatestDataDate.latest()
-        covid_data = CovidData.analysis(latest_data_date)
-
-        :timer.sleep(15000)
-
-        SlackBot.message(~s[:newspaper: *The Daily Covid*
-#{entry("Confirmed", covid_data, :confirmed)}
-#{entry("Deaths", covid_data, :deaths)}
-#{entry("Recovered", covid_data, :recovered)}
-#{entry("Active", covid_data, :active)}])
+        LatestDataDate.latest()
+        |> CovidData.analysis()
+        |> CovidData.message()
+        |> SlackBot.message()
 
         %{state | last_published_at: Date.utc_today()}
       else
@@ -67,20 +61,5 @@ defmodule Coronabot.State.PublishResults do
 
   def out_of_date?(state) do
     Date.diff(LatestDataDate.latest(), state[:last_published_at]) > 0
-  end
-
-  def entry(label, data, field) do
-    value = Map.get(data.today, field)
-    change = Map.get(data.yesterday_today_comparaison, field)
-
-    "#{label}: #{value} (_#{format_change(change)}_)"
-  end
-
-  def format_change(n) when n > 0 do
-    "+#{n}"
-  end
-
-  def format_change(n) when n <= 0 do
-    "#{n}"
   end
 end

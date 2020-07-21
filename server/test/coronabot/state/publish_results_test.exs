@@ -1,11 +1,8 @@
 defmodule Coronabot.State.PublishResultsTest do
   alias Coronabot.{
-    State.PublishResults,
-    State.LatestDataDate,
     Fixtures,
-    CovidData,
-    CovidData.Records.Comparaison,
-    CovidData.Records.Record
+    State.LatestDataDate,
+    State.PublishResults
   }
 
   import Mox
@@ -176,51 +173,6 @@ defmodule Coronabot.State.PublishResultsTest do
 
       GenServer.stop(pid)
       refute Process.alive?(pid)
-    end
-  end
-
-  describe "entry/1" do
-    test "formats as expected" do
-      data = %CovidData{
-        today: %Record{
-          province_state: nil,
-          country_region: nil,
-          last_update: nil,
-          lat: nil,
-          lng: nil,
-          confirmed: nil,
-          deaths: 14,
-          recovered: nil,
-          active: nil,
-          combined_key: nil,
-          incidence_rate: nil,
-          case_fatality_ratio: nil
-        },
-        yesterday_today_comparaison: %Comparaison{
-          confirmed: nil,
-          deaths: -2,
-          recovered: nil,
-          active: nil,
-          incidence_rate: nil,
-          case_fatality_ratio: nil
-        }
-      }
-
-      assert "Confirmed: 14 (_-2_)" == PublishResults.entry("Confirmed", data, :deaths)
-    end
-  end
-
-  describe "format_change/1" do
-    test "positive" do
-      assert "+1" == PublishResults.format_change(1)
-    end
-
-    test "negative" do
-      assert "-1" == PublishResults.format_change(-1)
-    end
-
-    test "zero" do
-      assert "0" == PublishResults.format_change(0)
     end
   end
 end
