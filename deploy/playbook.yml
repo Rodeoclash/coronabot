@@ -1,0 +1,77 @@
+---
+- name: Setup
+  hosts: localhost
+  vars:
+    ansible_python_interpreter: '/usr/bin/python3'
+    deploy_image_file_local: '{{lookup("env","HOME")}}/deploy_{{lookup("env","SHA")}}.tar'
+    deploy_image_name: 'coronabot/coronabot:{{lookup("env","SHA")}}'
+  tasks:
+    - pip:
+        name: docker
+
+    - name: Build deployment image
+      docker_image:
+        name: '{{deploy_image_name}}'
+        build:
+          dockerfile: ./server/Dockerfile
+          path: ../
+          target: deploy
+          pull: no
+        source: build
+
+    - name: Save locally before copy
+      docker_image:
+        name: '{{deploy_image_name}}'
+        archive_path: '{{deploy_image_file_local}}'
+        source: local
+
+    - name: Export ssh key
+      copy:
+        src: id_ed25519_gotchas.enc
+        dest: '{{lookup("env","HOME")}}/id_ed25519_gotchas'
+        mode: 0600
+        owner: '{{ ansible_user_id }}'
+
+- name: Deploy
+  hosts: app
+  vars:
+    ansible_python_interpreter: '/usr/bin/python3'
+    ansible_ssh_private_key_file: '{{lookup("env","HOME")}}/id_ed25519_gotchas'
+    deploy_image_file_local: '{{lookup("env","HOME")}}/deploy_{{lookup("env","SHA")}}.tar'
+    deploy_image_file_remote: '/tmp/deploy_{{lookup("env","SHA")}}.tar'
+    deploy_image_name: 'coronabot/coronabot:{{lookup("env","SHA")}}'
+  tasks:
+    - pip:
+        name: docker
+
+    - name: Copy image file to remote
+      copy:
+        src: '{{deploy_image_file_local}}'
+        dest: '{{deploy_image_file_remote}}'
+
+    - name: Load image
+      docker_image:
+        name: '{{deploy_image_name}}'
+        load_path: '{{deploy_image_file_remote}}'
+        source: load
+
+    - name: Ensure app running
+      docker_container:
+        name: coronabot
+        image: '{{deploy_image_name}}'
+        log_driver: json-file
+        restart_policy: unless-stopped
+        log_options:
+          'max-size': '5m'
+          'max-file': '3'
+        state: started
+        env:
+          SECRET_KEY_BASE: '{{slack_bot_token}}'
+        volumes: *volumes
+        networks:
+          - name: websites
+
+    - name: Remove uploaded image
+      file:
+        path: '{{deploy_image_file_remote}}'
+        state: absent
