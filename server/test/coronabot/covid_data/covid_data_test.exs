@@ -41,7 +41,7 @@ defmodule Coronabot.CovidData.CovidDataTest do
 
   describe "message/1" do
     test "formats as expected" do
-      assert ":newspaper: *The Daily Covid: 2020-07-18 UTC*\nConfirmed: 15 (_+4_)\nDeaths: 14 (_-2_)\nRecovered: 20 (_+6_)\nActive: 22 (_+20_)" == CovidData.message(@data)
+      assert ":newspaper: *The Daily Covid: 2020-07-18 UTC - Victoria, Australia*\nConfirmed: 15 (_+4_)\nDeaths: 14 (_-2_)\nRecovered: 20 (_+6_)\nActive: 22 (_+20_)" == CovidData.message(@data)
     end
   end
 

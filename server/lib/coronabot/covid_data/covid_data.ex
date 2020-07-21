@@ -59,7 +59,7 @@ defmodule Coronabot.CovidData do
   end
 
   def message(data) do
-    ~s[:newspaper: *The Daily Covid: #{Date.to_string(data.date)} UTC*
+    ~s[:newspaper: *The Daily Covid: #{Date.to_string(data.date)} UTC - Victoria, Australia*
 #{entry("Confirmed", data, :confirmed)}
 #{entry("Deaths", data, :deaths)}
 #{entry("Recovered", data, :recovered)}
