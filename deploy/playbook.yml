@@ -67,7 +67,6 @@
         state: started
         env:
           SECRET_KEY_BASE: '{{slack_bot_token}}'
-        volumes: *volumes
         networks:
           - name: websites
 
