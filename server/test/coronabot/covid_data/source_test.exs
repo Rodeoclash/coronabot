@@ -1,8 +1,5 @@
 defmodule Coronabot.CovidData.SourceTest do
   alias Coronabot.{
-    CovidData,
-    CovidData.Records.Comparaison,
-    CovidData.Records.Record,
     CovidData.Source
   }
 

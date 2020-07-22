@@ -1,6 +1,7 @@
 defmodule Coronabot.State.LatestDataDate do
   alias Coronabot.{CovidData.Source}
   alias __MODULE__
+  require Logger
   use GenServer
 
   # Client
@@ -48,6 +49,8 @@ defmodule Coronabot.State.LatestDataDate do
   @impl true
   def handle_info(:work, state) do
     latest = start_date_from_state(state) |> Source.scan()
+    Logger.info("Scanned for latest data, found:  #{Date.to_string(latest)}")
+
     new_state = %{state | latest: latest}
 
     requeue(state[:reschedule_in])

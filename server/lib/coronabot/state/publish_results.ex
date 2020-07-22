@@ -1,6 +1,7 @@
 defmodule Coronabot.State.PublishResults do
   alias Coronabot.{CovidData, State.LatestDataDate, SlackBot}
   alias __MODULE__
+  require Logger
   use GenServer
 
   # Client
@@ -25,6 +26,8 @@ defmodule Coronabot.State.PublishResults do
   def handle_info(:work, state) do
     state =
       if can_publish?(state) == true do
+        Logger.info("Publishing data for #{Date.to_string(LatestDataDate.latest())}")
+
         LatestDataDate.latest()
         |> CovidData.analysis()
         |> CovidData.message()
