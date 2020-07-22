@@ -47,10 +47,20 @@ defmodule Coronabot.State.PublishResultsTest do
     end)
   end
 
+  def mock_slack_message do
+    HTTPoisonMock
+    |> expect(:post, fn path, _body, _headers ->
+      assert path =~ "slack.com"
+
+      {:ok, %HTTPoison.Response{status_code: 200}}
+    end)
+  end
+
   describe "start_link/1" do
     test "it peforms expected startup" do
       mock_source_scan()
       mock_source_analyse()
+      mock_slack_message()
 
       assert {:ok, pid} = LatestDataDate.start_link(initial: ~D[2020-07-18], reschedule_in: 1000)
 
@@ -78,6 +88,7 @@ defmodule Coronabot.State.PublishResultsTest do
     test "when can publish and has not published" do
       mock_source_scan()
       mock_source_analyse()
+      mock_slack_message()
 
       assert {:ok, pid} = LatestDataDate.start_link(initial: ~D[2020-07-18], reschedule_in: 1000)
 
@@ -96,6 +107,7 @@ defmodule Coronabot.State.PublishResultsTest do
     test "when can publish, has already published but is out of date" do
       mock_source_scan()
       mock_source_analyse()
+      mock_slack_message()
 
       assert {:ok, pid} = LatestDataDate.start_link(initial: ~D[2020-07-18], reschedule_in: 1000)
 

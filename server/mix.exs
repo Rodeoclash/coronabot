@@ -33,8 +33,7 @@ defmodule Coronabot.MixProject do
     [
       {:httpoison, "~> 1.6"},
       {:mox, "~> 0.5", only: :test},
-      {:nimble_csv, "~> 0.7"},
-      {:slack, "~> 0.23.5"}
+      {:nimble_csv, "~> 0.7"}
     ]
   end
 end

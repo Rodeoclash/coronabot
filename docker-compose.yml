@@ -8,7 +8,7 @@ services:
       target: development
     command: mix start
     environment:
-      - SLACK_BOT_TOKEN
+      - SLACK_WEBHOOK_URL
     image: rodeoclash/coronabot:latest
     logging:
       driver: 'json-file'

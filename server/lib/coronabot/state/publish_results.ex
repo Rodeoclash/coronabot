@@ -1,5 +1,5 @@
 defmodule Coronabot.State.PublishResults do
-  alias Coronabot.{CovidData, State.LatestDataDate, SlackBot}
+  alias Coronabot.{CovidData, State.LatestDataDate, Slack}
   alias __MODULE__
   require Logger
   use GenServer
@@ -31,7 +31,7 @@ defmodule Coronabot.State.PublishResults do
         LatestDataDate.latest()
         |> CovidData.analysis()
         |> CovidData.message()
-        |> SlackBot.message()
+        |> Slack.message()
 
         %{state | last_published_at: Date.utc_today()}
       else
