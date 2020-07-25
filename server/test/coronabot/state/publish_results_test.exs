@@ -98,7 +98,7 @@ defmodule Coronabot.State.PublishResultsTest do
                  reschedule_in: @reschedule_in
                })
 
-      assert last_published_at == Date.utc_today()
+      assert last_published_at == ~D[2020-07-18]
 
       :timer.sleep(@reschedule_in + 100)
       assert_received :work
@@ -117,7 +117,7 @@ defmodule Coronabot.State.PublishResultsTest do
                  reschedule_in: @reschedule_in
                })
 
-      assert last_published_at == Date.utc_today()
+      assert last_published_at == ~D[2020-07-18]
 
       :timer.sleep(@reschedule_in + 100)
       assert_received :work

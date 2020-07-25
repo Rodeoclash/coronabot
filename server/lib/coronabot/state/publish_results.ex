@@ -28,12 +28,14 @@ defmodule Coronabot.State.PublishResults do
       if can_publish?(state) == true do
         Logger.info("Publishing data for #{Date.to_string(LatestDataDate.latest())}")
 
-        LatestDataDate.latest()
+        latest = LatestDataDate.latest()
+
+        latest
         |> CovidData.analysis()
         |> CovidData.message()
         |> Slack.message()
 
-        %{state | last_published_at: Date.utc_today()}
+        %{state | last_published_at: latest}
       else
         state
       end
